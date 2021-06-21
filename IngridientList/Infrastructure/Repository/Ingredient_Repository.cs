@@ -6,14 +6,21 @@ using System.Linq;
 using System.Threading.Tasks;
 using IngridientList.Infrastructure.DTO;
 using System.Data.SqlClient;
+using Microsoft.Extensions.Configuration;
 
 namespace IngridientList.Infrastructure.Repository
 {
     public class Ingredient_Repository: IIngredient_Repository
     {
 
-        private readonly string adres = "Server=host.docker.internal;Database=Recipe_book;uid=sa;pwd=Qwerty123;";
-        //string adres = "Server=Localhost;Database=Recipe_book;Integrated Security=true;";
+        private const string CONNECTION_STRING_NAME = "Database";
+
+        private readonly IConfiguration _configuration;
+
+        public Ingredient_Repository(IConfiguration configuration)
+        {
+            _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
+        }
 
 
         public async Task<IngredientList> PutList(PutList put)
@@ -22,7 +29,7 @@ namespace IngridientList.Infrastructure.Repository
             IngredientDTO data = new IngredientDTO();
 
             //Работа с БД
-            using (var connection = new SqlConnection(adres))
+            using (var connection = new SqlConnection(_configuration.GetConnectionString(CONNECTION_STRING_NAME)))
             {
                 await connection.OpenAsync();
                 using var cmd = new SqlCommand($"SELECT Ingredients FROM dbo.Recipe_List WHERE Recipe_Name='{put.Name}'", connection);
