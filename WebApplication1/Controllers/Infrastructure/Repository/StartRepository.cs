@@ -15,9 +15,7 @@ namespace WebApplication1.Controllers.Infrastructure.Repository
     public class StartRepository: IStartRepository
     {
 
-        /*
-
-        private const string CONNECTION_STRING_NAME = "Start";
+        private const string CONNECTION_STRING_NAME = "Database";
 
         private readonly IConfiguration _configuration;
 
@@ -26,12 +24,7 @@ namespace WebApplication1.Controllers.Infrastructure.Repository
             _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
         }
 
-        */
-        //postgreSQL
-        //private readonly string adres = "Host=docker.host.internal\\PostgreSQL_13;Username=postgres;Password=Lsvjr7397;Database=Test";
 
-        private readonly string adres = "Server=host.docker.internal;Database=Recipe_book;uid=sa;pwd=Qwerty123;";
-        //string adres = "Server=Localhost;Database=Recipe_book;Integrated Security=true;";
         public async Task<Start[]> GetStart()
         {
 
@@ -39,7 +32,7 @@ namespace WebApplication1.Controllers.Infrastructure.Repository
             List<StartDTO> data = new List<StartDTO>();
 
             //Работа с БД
-            using (var connection=new SqlConnection(adres))
+            using (var connection=new SqlConnection(_configuration.GetConnectionString(CONNECTION_STRING_NAME)))
             {
                 await connection.OpenAsync();
                 using var cmd = new SqlCommand("SELECT * FROM dbo.Recipe_List",connection) ;
@@ -68,7 +61,7 @@ namespace WebApplication1.Controllers.Infrastructure.Repository
             List<StartDTO> data = new List<StartDTO>();
 
             //Работа с БД
-            using (var connection = new SqlConnection(adres))
+            using (var connection = new SqlConnection(_configuration.GetConnectionString(CONNECTION_STRING_NAME)))
             {
                 
 
