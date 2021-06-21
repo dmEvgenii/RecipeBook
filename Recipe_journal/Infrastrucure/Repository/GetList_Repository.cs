@@ -6,14 +6,20 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Data.SqlClient;
 using Recipe_journal.Infrastrucure.DTO;
+using Microsoft.Extensions.Configuration;
 
 namespace Recipe_journal.Infrastrucure.Repository
 {
     public class GetList_Repository: IGetList_Repository
     {
-        private readonly string adres = "Server=host.docker.internal;Database=Recipe_book;uid=sa;pwd=Qwerty123;";
-        //string adres = "Server=Localhost;Database=Recipe_book;Integrated Security=true;";
+        private const string CONNECTION_STRING_NAME = "Database";
 
+        private readonly IConfiguration _configuration;
+
+        public GetList_Repository(IConfiguration configuration)
+        {
+            _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
+        }
 
         public async Task<JournalGet[]> Get(JournalPut put)
         {
@@ -21,7 +27,7 @@ namespace Recipe_journal.Infrastrucure.Repository
             List<JournalDTO> data = new List<JournalDTO>();
 
             //Работа с БД
-            using (var connection = new SqlConnection(adres))
+            using (var connection = new SqlConnection(_configuration.GetConnectionString(CONNECTION_STRING_NAME)))
             {
                 await connection.OpenAsync();
                 using var cmd = new SqlCommand($"SELECT * FROM dbo.Recipe_Result WHERE Recipe_Name='{put.Name}'", connection);

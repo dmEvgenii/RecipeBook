@@ -1,4 +1,5 @@
-﻿using Recipe_journal.Domain.Class;
+﻿using Microsoft.Extensions.Configuration;
+using Recipe_journal.Domain.Class;
 using Recipe_journal.Domain.Interface;
 using Recipe_journal.Infrastrucure.DTO;
 using System;
@@ -11,9 +12,14 @@ namespace Recipe_journal.Infrastrucure.Repository
 {
     public class Add_Repository: IAdd_Repository
     {
-        private readonly string adres = "Server=host.docker.internal;Database=Recipe_book;uid=sa;pwd=Qwerty123;";
-        //string adres = "Server=Localhost;Database=Recipe_book;Integrated Security=true;";
+        private const string CONNECTION_STRING_NAME = "Database";
 
+        private readonly IConfiguration _configuration;
+
+        public Add_Repository(IConfiguration configuration)
+        {
+            _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
+        }
 
 
 
@@ -23,7 +29,7 @@ namespace Recipe_journal.Infrastrucure.Repository
             List<JournalDTO> data = new List<JournalDTO>();
 
             //Работа с БД
-            using (var connection = new SqlConnection(adres))
+            using (var connection = new SqlConnection(_configuration.GetConnectionString(CONNECTION_STRING_NAME)))
             {
                 await connection.OpenAsync();
                 var cmd = new SqlCommand($"UPDATE dbo.Recipe_Result SET Result=Result+'{put.Result}',Remarks='{put.Remarks}' WHERE Recipe_Name='{put.Name}'", connection);
