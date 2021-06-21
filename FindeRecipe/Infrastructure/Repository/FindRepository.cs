@@ -1,6 +1,7 @@
 ﻿using FindRecipe.Domain.Class;
 using FindRecipe.Domain.Interface;
 using FindRecipe.Infrastructure.DTO;
+using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
@@ -12,10 +13,14 @@ namespace FindRecipe.Infrastructure.Repository
 {
     public class FindRepository: IFindRepository
     {
-        private readonly string adres = "Server=host.docker.internal;Database=Recipe_book;uid=sa;pwd=Qwerty123;";
-        //string adres = "Server=Localhost;Database=Recipe_book;Integrated Security=true;";
+        private const string CONNECTION_STRING_NAME = "Database";
 
+        private readonly IConfiguration _configuration;
 
+        public FindRepository(IConfiguration configuration)
+        {
+            _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
+        }
 
         public async Task<FindedRecipe[]> Find(PutList put)
         {
@@ -24,7 +29,7 @@ namespace FindRecipe.Infrastructure.Repository
             List<FindDTO> data = new List<FindDTO>();
 
             //Работа с БД
-            using (var connection = new SqlConnection(adres))
+            using (var connection = new SqlConnection(_configuration.GetConnectionString(CONNECTION_STRING_NAME)))
             {
                 await connection.OpenAsync();
 
