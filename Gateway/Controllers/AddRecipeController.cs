@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 using Serilog;
 using System;
 using System.Collections.Generic;
@@ -13,26 +14,34 @@ namespace Gateway.Controllers
     [ApiController]
     public class AddRecipeController : ControllerBase
     {
-        
+
+
+        private IConfiguration _configuration;
+
+        public AddRecipeController(IConfiguration configuration)
+        {
+            _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
+        }
+
 
         [HttpPut]
 
         public async Task<IActionResult> PutStartApp()
         {
-
+            var url = _configuration.GetSection("Dsn").Value;
             var logger = new LoggerConfiguration()
-                .WriteTo.Sentry("https://37366873538a48b6a45ba3163f63f482@o829940.ingest.sentry.io/5812140")
+                .WriteTo.Sentry(url)
                 .Enrich.FromLogContext()
                 .CreateLogger();
 
 
             try
             {
-                logger.Error("Новый поиск упражнений");
 
                 using (HttpClient client = new HttpClient())
                 {
-                    var result1 = await client.GetAsync("http://127.17.0.5/Add");
+                    url = _configuration.GetSection("AddRecipeUrl").Value;
+                    var result1 = await client.GetAsync($"{url}Add");
                     result1.EnsureSuccessStatusCode();
                     var result = await result1.Content.ReadAsStringAsync();
                     return Ok(result1);

@@ -31,7 +31,6 @@ namespace Gateway.Controllers
 
             try
             {
-                logger.Error("Новый поиск упражнений");
 
                 using (HttpClient client = new HttpClient())
                 {
